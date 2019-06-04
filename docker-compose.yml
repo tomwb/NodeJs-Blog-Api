@@ -1,0 +1,37 @@
+version: "3"
+services:
+  web:
+    build:
+      dockerfile: ./docker/Dockerfile
+      context: .
+    image: tomwb/nodejs-blog-api
+    container_name: nodejs-blog-api
+    ports:
+      - "3000:3000"
+    networks:
+      - node-api-network
+    depends_on:
+      - mongodb
+    links:
+      - mongodb
+    volumes:
+      - ./:/var/www
+      - /var/www/node_modules # Remove this if you have pure JS dependencies
+        
+  mongodb:
+    image: mongo:4.0.7
+    container_name: nodejs-blog-api-mongodb
+    environment:
+      - MONGO_DATA_DIR=/data/db
+      - MONGO_LOG_DIR=/dev/null
+    volumes:
+      - ./mongodb:/data/db
+    ports:
+      - 27017:27017
+    networks:
+      - node-api-network
+    command: mongod --smallfiles --logpath=/dev/null
+
+networks:
+  node-api-network:
+    driver: bridge
